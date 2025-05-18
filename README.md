@@ -33,7 +33,6 @@ CareerBot/
 
 ### 1. Clone the repo
 
-```bash
 git clone https://github.com/YourUsername/CareerBot.git
 cd CareerBot
 
@@ -44,16 +43,16 @@ conda activate careerbot-env
 ### 3. Install dependencies
 pip install -r requirements.txt
 
-4. Add your .env file
+### 4. Add your .env file
 GEMINI_API_KEY=your_google_gemini_key
 SERPAPI_KEY=your_serpapi_key
 
-5. Run the App
+### 5. Run the App
 streamlit run streamlit_app.py
 
 ----
 
-## 📚 How It Works
+##  How It Works
 PDFs are embedded into a vector database using sentence-transformers + FAISS.
 
 When a user asks a question:
@@ -66,7 +65,7 @@ Otherwise → performs a web search via SerpAPI and answers from that.
 
 ----
 
-## 🧠 Tech Stack
+##  Tech Stack
 LLM: Google Gemini 1.5 Flash via langchain-google-genai
 
 Embeddings: sentence-transformers/all-MiniLM-L6-v2
@@ -81,7 +80,7 @@ Memory: LangChain's ConversationBufferMemory
 
 ----
 
-## 📌 To-Do / Future Improvements
+##  To-Do / Future Improvements
 Add source highlighting or document links
 
 Enable PDF upload during runtime
@@ -94,7 +93,7 @@ Add UI themes or personalization
 
 ----
 
-## 🙌 Acknowledgments
+##  Acknowledgments
 LangChain
 
 Hugging Face Sentence Transformers
