@@ -53,7 +53,7 @@ streamlit run streamlit_app.py
 
 ----
 
-📚 How It Works
+## 📚 How It Works
 PDFs are embedded into a vector database using sentence-transformers + FAISS.
 
 When a user asks a question:
@@ -66,7 +66,7 @@ Otherwise → performs a web search via SerpAPI and answers from that.
 
 ----
 
-🧠 Tech Stack
+## 🧠 Tech Stack
 LLM: Google Gemini 1.5 Flash via langchain-google-genai
 
 Embeddings: sentence-transformers/all-MiniLM-L6-v2
@@ -81,7 +81,7 @@ Memory: LangChain's ConversationBufferMemory
 
 ----
 
-📌 To-Do / Future Improvements
+## 📌 To-Do / Future Improvements
 Add source highlighting or document links
 
 Enable PDF upload during runtime
@@ -94,7 +94,7 @@ Add UI themes or personalization
 
 ----
 
-🙌 Acknowledgments
+## 🙌 Acknowledgments
 LangChain
 
 Hugging Face Sentence Transformers
