@@ -22,8 +22,8 @@ CareerBot/
 ├── pdfs/ # Source PDFs for chatbot knowledge
 ├── chatbot.py # (Optional helper module)
 ├── output.txt # Output logs (if any)
-├── streamlit_app.py # 🚀 Main Streamlit app
-└── README.md # 📄 You're reading it!
+├── streamlit_app.py #  Main Streamlit app
+└── README.md #  You're reading it!
 
 
 
@@ -51,6 +51,7 @@ SERPAPI_KEY=your_serpapi_key
 5. Run the App
 streamlit run streamlit_app.py
 
+----
 
 📚 How It Works
 PDFs are embedded into a vector database using sentence-transformers + FAISS.
@@ -63,6 +64,7 @@ If a confident answer is found → returns it using Gemini LLM.
 
 Otherwise → performs a web search via SerpAPI and answers from that.
 
+----
 
 🧠 Tech Stack
 LLM: Google Gemini 1.5 Flash via langchain-google-genai
@@ -77,6 +79,7 @@ Search: SerpAPI (Google Search JSON API)
 
 Memory: LangChain's ConversationBufferMemory
 
+----
 
 📌 To-Do / Future Improvements
 Add source highlighting or document links
@@ -89,6 +92,7 @@ Save chat history persistently
 
 Add UI themes or personalization
 
+----
 
 🙌 Acknowledgments
 LangChain
