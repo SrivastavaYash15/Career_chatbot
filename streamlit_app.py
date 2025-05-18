@@ -1,6 +1,7 @@
 
 import streamlit as st
 import os
+import requests
 from dotenv import load_dotenv
 
 from langchain.vectorstores import FAISS
@@ -9,6 +10,23 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate, ChatPromptTemplate
 from langchain.chains import LLMChain
 from langchain.memory import ConversationBufferMemory
+
+st.markdown("""
+    <style>
+    .stChatMessage {
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    .stChatMessage.user {
+        background-color: #DCF8C6;
+        align-self: flex-end;
+    }
+    .stChatMessage.assistant {
+        background-color: #F1F0F0;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 st.title("CareerBot")
 st.write("Your Career Companion")
@@ -23,7 +41,8 @@ vector_db = load_vector_db()
 #api key
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
+SERPAPI_KEY = os.getenv("SERPAPI_KEY")
+print(SERPAPI_KEY)
 #defining the prompt template
 if "memory" not in st.session_state:
     st.session_state.memory = ConversationBufferMemory(return_messages = True, input_key = "question", output_key="text")
@@ -52,26 +71,76 @@ chain = LLMChain(
     verbose = True,
     memory = memory
 )
+#setting up the chain for web search 
+web_prompt = PromptTemplate.from_template("""You are a helpful AI assistant who answers career-related questions using search results from the web.
 
-# Display chat history 
+Only use the information provided below. Do not rely on prior knowledge or assumptions. Keep the response concise and relevant.
+
+If the web information is insufficient to answer accurately, say: "I'm not confident enough to answer this question."
+
+{history}
+Web Results:
+{web_context}
+
+User Question:
+{question}
+""")
+
+#setting up the llm chain
+web_chain = LLMChain(
+    llm=chat_model,
+    prompt= web_prompt,
+    verbose=True,
+    memory=memory
+)
+
+
+#creating function to perform a web search
+def get_web_results(query, api_key, k=3):
+    url = "https://serpapi.com/search"  # The base URL for SerpAPI
+    params = {
+        'q': query,
+        'engine': 'google',
+        'api_key': api_key,
+        'num': k, 
+        }
+    response = requests.get("https://serpapi.com/search.json", params=params)
+    results = response.json().get('organic_results', [])
+    snippets = [r.get('snippet', '') for r in results if r.get('snippet')]
+    return "\n".join(snippets)
+    # Perform the web search
+# Display chat history
 for msg in memory.chat_memory.messages:
-    if msg.type == "human":
-        st.markdown(f"**You:** {msg.content}")
-    elif msg.type == "ai":
-        st.markdown(f"**CareerBot:** {msg.content}")
+    with st.chat_message("user" if msg.type == "human" else "assistant"):
+        st.markdown(msg.content)
+    
 
 
-user_input = st.text_input("Enter your query here:")
+user_input = st.chat_input("Enter your query here:")
+if user_input is not None and user_input.strip() != "":
+    with st.spinner("Searching for the answer..."):
+        docs_with_scores = vector_db.similarity_search_with_score(user_input, k=3)
+        final_context_string = "\n\n".join(doc.page_content for doc, _ in docs_with_scores)
 
-if user_input:
-   with st.spinner("Searching for the answer..."):
-    docs = vector_db.similarity_search(user_input, k=3)
-    final_context_string = "\n\n".join(doc.page_content for doc in docs)
     response = chain.invoke({
         "context": final_context_string,
         "question": user_input
-    })    
-    st.write("Answer: ", response['text'])
+    })
+
+    # Check if the model replied with "not sure"
+    if "not sure" in response['text'].lower():
+        web_context = get_web_results(user_input, SERPAPI_KEY)
+        response = web_chain.invoke({
+            "web_context": web_context,
+            "question": user_input
+        })
+        with st.chat_message("assistant"):
+            st.markdown(f" I searched the web and found:\n\n{response['text']}")
+    else:
+        with st.chat_message("assistant"):
+            st.markdown(response['text'])
+
+
 
 
     # Optional: Reset chat
@@ -82,3 +151,4 @@ if st.button("Reset Chat"):
         output_key="text"
     )
     st.rerun()
+
